@@ -1,28 +1,28 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-gray-950 text-white">
-      {/* Navbar */}
-      <nav className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
-        <h1 className="text-2xl font-bold text-emerald-400">FinTrack AI</h1>
-        <div className="hidden md:flex gap-6 text-gray-300">
-          <a href="#features" className="hover:text-white">Features</a>
-          <a href="#how" className="hover:text-white">How it Works</a>
-          <a href="#about" className="hover:text-white">About</a>
+
+      {/* Home Navbar (guest style) */}
+      <nav className="flex items-center justify-between px-6 py-4 border-b border-gray-800 bg-gray-950 text-white">
+        <Link href="/" className="text-2xl font-bold text-emerald-400">
+          FinTrack AI
+        </Link>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/login"
+            className="text-gray-300 hover:text-white"
+          >
+            Login
+          </Link>
+          <Link
+            href="/signup"
+            className="bg-emerald-500 hover:bg-emerald-600 text-black font-semibold px-4 py-2 rounded-lg"
+          >
+            Sign Up
+          </Link>
         </div>
-        <div className="flex gap-3">
-  <a
-    href="/login"
-    className="text-gray-300 hover:text-white px-4 py-2"
-  >
-    Login
-  </a>
-  <a
-    href="/signup"
-    className="bg-emerald-500 hover:bg-emerald-600 text-black font-semibold px-4 py-2 rounded-lg"
-  >
-    Sign Up
-  </a>
-</div>
       </nav>
 
       {/* Hero */}
@@ -31,23 +31,26 @@ export default function Home() {
           🚀 Day 1/21 — Currently Building
         </span>
         <h2 className="text-5xl md:text-6xl font-bold max-w-3xl leading-tight">
-          Manage Your Money with <span className="text-emerald-400">AI Intelligence</span>
+          Manage Your Money with{" "}
+          <span className="text-emerald-400">AI Intelligence</span>
         </h2>
         <p className="text-gray-400 max-w-2xl mt-6 text-lg">
           FinTrack AI helps you track expenses, set budgets, and get smart
           AI-powered insights so you can spend smarter and save more.
         </p>
         <div className="flex gap-4 mt-10">
+          <Link
+            href="/signup"
+            className="bg-emerald-500 hover:bg-emerald-600 text-black font-semibold px-6 py-3 rounded-lg"
+          >
+            Start Free
+          </Link>
           <a
-  href="/signup"
-  className="bg-emerald-500 hover:bg-emerald-600 text-black font-semibold px-6 py-3 rounded-lg"
->
-  Start Free
-</a>
-          
-          <button className="border border-gray-700 hover:border-gray-500 px-6 py-3 rounded-lg text-gray-300">
+            href="#features"
+            className="border border-gray-700 hover:border-gray-500 px-6 py-3 rounded-lg text-gray-300"
+          >
             Learn More
-          </button>
+          </a>
         </div>
       </section>
 
