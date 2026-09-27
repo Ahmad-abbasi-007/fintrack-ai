@@ -1,0 +1,60 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+
+export async function addTransaction(formData: FormData) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect("/login");
+
+  const type = formData.get("type") as "income" | "expense";
+  const amount = parseFloat(formData.get("amount") as string);
+  const category = formData.get("category") as string;
+  const description = (formData.get("description") as string) || null;
+  const transaction_date = formData.get("transaction_date") as string;
+
+  if (!type || !amount || !category || !transaction_date) {
+    throw new Error("All required fields must be filled");
+  }
+
+  const { error } = await supabase.from("transactions").insert({
+    user_id: user.id,
+    type,
+    amount,
+    category,
+    description,
+    transaction_date,
+  });
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/dashboard");
+}
+
+export async function deleteTransaction(formData: FormData) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect("/login");
+
+  const id = formData.get("id") as string;
+
+  const { error } = await supabase
+    .from("transactions")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/dashboard");
+}
