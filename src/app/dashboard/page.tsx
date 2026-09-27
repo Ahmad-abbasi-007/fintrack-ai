@@ -4,6 +4,13 @@ import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import AddTransactionForm from "@/components/AddTransactionForm";
 import TransactionList from "@/components/TransactionList";
+import CategoryPieChart from "@/components/CategoryPieChart";
+import MonthlyBarChart from "@/components/MonthlyBarChart";
+import TopCategories from "@/components/TopCategories";
+import {
+  getCategoryBreakdown,
+  getMonthlyStats,
+} from "@/lib/stats";
 import type { Transaction } from "@/lib/types";
 
 export default async function DashboardPage() {
@@ -33,6 +40,10 @@ export default async function DashboardPage() {
 
   const balance = totalIncome - totalExpense;
 
+  const expenseByCategory = getCategoryBreakdown(list, "expense");
+  const incomeByCategory = getCategoryBreakdown(list, "income");
+  const monthly = getMonthlyStats(list, 6);
+
   const name = user.user_metadata?.full_name || "there";
 
   return (
@@ -56,7 +67,7 @@ export default async function DashboardPage() {
               label="Total Balance"
               value={`$${balance.toFixed(2)}`}
               icon="💰"
-              color="text-emerald-400"
+              color={balance >= 0 ? "text-emerald-400" : "text-red-400"}
             />
             <StatCard
               label="Total Income"
@@ -72,7 +83,28 @@ export default async function DashboardPage() {
             />
           </div>
 
-          {/* Two-column layout */}
+          {/* Charts row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <CategoryPieChart
+              data={expenseByCategory}
+              title="Expenses by Category"
+            />
+            <MonthlyBarChart data={monthly} />
+          </div>
+
+          {/* Top categories + income breakdown */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <TopCategories
+              data={expenseByCategory}
+              title="Top Spending Categories"
+            />
+            <TopCategories
+              data={incomeByCategory}
+              title="Income Sources"
+            />
+          </div>
+
+          {/* Add form + transactions */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1">
               <AddTransactionForm />
