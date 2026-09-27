@@ -9,9 +9,20 @@ export default function Home() {
           <a href="#how" className="hover:text-white">How it Works</a>
           <a href="#about" className="hover:text-white">About</a>
         </div>
-        <button className="bg-emerald-500 hover:bg-emerald-600 text-black font-semibold px-4 py-2 rounded-lg">
-          Get Started
-        </button>
+        <div className="flex gap-3">
+  <a
+    href="/login"
+    className="text-gray-300 hover:text-white px-4 py-2"
+  >
+    Login
+  </a>
+  <a
+    href="/signup"
+    className="bg-emerald-500 hover:bg-emerald-600 text-black font-semibold px-4 py-2 rounded-lg"
+  >
+    Sign Up
+  </a>
+</div>
       </nav>
 
       {/* Hero */}
@@ -27,9 +38,13 @@ export default function Home() {
           AI-powered insights so you can spend smarter and save more.
         </p>
         <div className="flex gap-4 mt-10">
-          <button className="bg-emerald-500 hover:bg-emerald-600 text-black font-semibold px-6 py-3 rounded-lg">
-            Start Free
-          </button>
+          <a
+  href="/signup"
+  className="bg-emerald-500 hover:bg-emerald-600 text-black font-semibold px-6 py-3 rounded-lg"
+>
+  Start Free
+</a>
+          
           <button className="border border-gray-700 hover:border-gray-500 px-6 py-3 rounded-lg text-gray-300">
             Learn More
           </button>
