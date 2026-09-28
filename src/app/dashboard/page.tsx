@@ -5,6 +5,7 @@ import Sidebar from "@/components/Sidebar";
 import AddTransactionForm from "@/components/AddTransactionForm";
 import TransactionList from "@/components/TransactionList";
 import CategoryPieChart from "@/components/CategoryPieChart";
+import AIInsights from "@/components/AIInsights";
 import MonthlyBarChart from "@/components/MonthlyBarChart";
 import TopCategories from "@/components/TopCategories";
 import {
@@ -81,6 +82,10 @@ export default async function DashboardPage() {
               icon="📉"
               color="text-red-400"
             />
+          </div>
+               {/* AI Insights */}
+          <div className="mb-6">
+            <AIInsights />
           </div>
 
           {/* Charts row */}
