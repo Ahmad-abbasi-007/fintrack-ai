@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useRef } from "react";
 import { scanReceipt, type ReceiptData } from "@/app/dashboard/receipt-actions";
+import { formatCurrency } from "@/lib/currency";
 
 export default function ReceiptScanner({
   onExtract,
@@ -41,7 +43,7 @@ export default function ReceiptScanner({
         const data = await scanReceipt(base64, mimeType);
         onExtract(data);
         setSuccess(
-          `Receipt scanned: $${data.amount.toFixed(2)} — ${data.description}`
+          `Receipt scanned: ${formatCurrency(data.amount)} — ${data.description}`
         );
       } catch (e: unknown) {
         const message =
@@ -93,9 +95,12 @@ export default function ReceiptScanner({
 
       {preview && (
         <div className="space-y-4">
-          <img
+          <Image
             src={preview}
             alt="Receipt preview"
+            width={800}
+            height={600}
+            unoptimized
             className="rounded-xl max-h-64 mx-auto border border-gray-800"
           />
 

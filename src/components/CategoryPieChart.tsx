@@ -1,5 +1,6 @@
 "use client";
 
+import { formatCurrency } from "@/lib/currency";
 import {
   PieChart,
   Pie,
@@ -67,7 +68,7 @@ export default function CategoryPieChart({
                 borderRadius: "8px",
                 color: "#fff",
               }}
-              formatter={(value) => `$${Number(value ?? 0).toFixed(2)}`}
+              formatter={(value) => formatCurrency(value)}
             />
             <Legend
               wrapperStyle={{ fontSize: "12px", color: "#9ca3af" }}

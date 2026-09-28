@@ -77,7 +77,8 @@ Return ONLY a JSON object with this exact structure (no markdown, no explanation
 
 Rules:
 - "type" is almost always "expense" for receipts. Use "income" only if the receipt clearly shows a refund or deposit.
-- "amount" is the FINAL total (the largest number, after tax/tip). Just the number, no currency symbol.
+- "amount" is the FINAL total in PKR (Pakistani Rupees), after tax/tip. Return only the number, with no currency symbol.
+- Pakistani receipts may show "Rs." or "PKR" before the amount; strip that prefix and return only the numeric value.
 - "category" MUST be exactly one of these:
   EXPENSE: ${EXPENSE_CATEGORIES.join(", ")}
   INCOME: ${INCOME_CATEGORIES.join(", ")}

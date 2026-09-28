@@ -1,20 +1,20 @@
 import { deleteTransaction } from "@/app/dashboard/actions";
 import type { Transaction } from "@/lib/types";
+import { formatSignedCurrency } from "@/lib/currency";
+import EmptyState from "@/components/EmptyState";
 
 export default function TransactionList({
   transactions,
 }: {
   transactions: Transaction[];
 }) {
-  if (transactions.length === 0) {
+    if (transactions.length === 0) {
     return (
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl p-10 text-center">
-        <p className="text-4xl mb-3">📭</p>
-        <h3 className="text-lg font-semibold mb-2">No transactions yet</h3>
-        <p className="text-gray-400 text-sm">
-          Add your first transaction using the form to get started.
-        </p>
-      </div>
+      <EmptyState
+        icon="📭"
+        title="No transactions yet"
+        description="Add your first transaction using the form to get started tracking your finances."
+      />
     );
   }
 
@@ -64,12 +64,12 @@ export default function TransactionList({
               </div>
 
               <div className="flex items-center gap-4 shrink-0">
-                <p
+                                <p
                   className={`font-semibold ${
                     isIncome ? "text-emerald-400" : "text-red-400"
                   }`}
                 >
-                  {isIncome ? "+" : "-"}${Number(t.amount).toFixed(2)}
+                  {formatSignedCurrency(t.amount, t.type)}
                 </p>
 
                 <form action={deleteTransaction}>

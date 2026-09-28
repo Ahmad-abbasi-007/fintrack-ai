@@ -1,5 +1,5 @@
 "use client";
-
+import { CURRENCY_SYMBOL, formatCurrency } from "@/lib/currency";
 import {
   BarChart,
   Bar,
@@ -31,7 +31,7 @@ export default function MonthlyBarChart({ data }: { data: MonthlyStat[] }) {
               stroke="#6b7280"
               fontSize={12}
               tickLine={false}
-              tickFormatter={(v) => `$${v}`}
+              tickFormatter={(v) => `${CURRENCY_SYMBOL} ${v}`}
             />
             <Tooltip
               contentStyle={{
@@ -40,7 +40,7 @@ export default function MonthlyBarChart({ data }: { data: MonthlyStat[] }) {
                 borderRadius: "8px",
                 color: "#fff",
               }}
-              formatter={(value) => `$${Number(value ?? 0).toFixed(2)}`}
+              formatter={(value) => formatCurrency(value)}
             />
             <Legend wrapperStyle={{ fontSize: "12px", color: "#9ca3af" }} />
             <Bar

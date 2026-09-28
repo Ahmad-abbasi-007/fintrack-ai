@@ -75,9 +75,9 @@ export default function TransactionInputPanel() {
 
       {tab === "manual" ? (
         <AddTransactionForm
+          key={prefill ? JSON.stringify(prefill) : "manual"}
           categories={categories}
           prefill={prefill}
-          onPrefillConsumed={() => setPrefill(null)}
         />
       ) : (
         <ReceiptScanner onExtract={handleExtract} />

@@ -5,7 +5,9 @@ import Sidebar from "@/components/Sidebar";
 import BudgetForm from "@/components/BudgetForm";
 import BudgetCard from "@/components/BudgetCard";
 import { getBudgetStatuses } from "@/lib/budget-stats";
+import { formatCurrency } from "@/lib/currency";
 import type { Budget, Transaction } from "@/lib/types";
+import EmptyState from "@/components/EmptyState";
 
 export default async function BudgetsPage() {
   const supabase = await createClient();
@@ -56,19 +58,19 @@ export default async function BudgetsPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <StatCard
               label="Total Monthly Budget"
-              value={`$${totalLimit.toFixed(2)}`}
+              value={formatCurrency(totalLimit)}
               icon="🎯"
               color="text-emerald-400"
             />
             <StatCard
               label="Spent This Month"
-              value={`$${totalSpent.toFixed(2)}`}
+              value={formatCurrency(totalSpent)}
               icon="💸"
               color="text-amber-400"
             />
             <StatCard
               label="Remaining"
-              value={`$${Math.max(totalLimit - totalSpent, 0).toFixed(2)}`}
+              value={formatCurrency(Math.max(totalLimit - totalSpent, 0))}
               icon="💰"
               color="text-emerald-400"
             />
@@ -82,16 +84,12 @@ export default async function BudgetsPage() {
 
             {/* Budgets grid */}
             <div className="lg:col-span-2">
-              {statuses.length === 0 ? (
-                <div className="bg-gray-900 border border-gray-800 rounded-2xl p-10 text-center">
-                  <p className="text-4xl mb-3">🎯</p>
-                  <h3 className="text-lg font-semibold mb-2">
-                    No budgets set yet
-                  </h3>
-                  <p className="text-gray-400 text-sm">
-                    Set a budget on the left to start tracking your limits.
-                  </p>
-                </div>
+                            {statuses.length === 0 ? (
+                <EmptyState
+                  icon="🎯"
+                  title="No budgets set yet"
+                  description="Set a budget on the left to start tracking your limits and get alerts."
+                />
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {statuses.map((status) => (

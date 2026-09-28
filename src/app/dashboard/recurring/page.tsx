@@ -5,6 +5,7 @@ import Sidebar from "@/components/Sidebar";
 import RecurringCard from "@/components/RecurringCard";
 import { generateDueRecurring } from "@/app/dashboard/recurring-actions";
 import type { Transaction } from "@/lib/types";
+import EmptyState from "@/components/EmptyState";
 
 export default async function RecurringPage() {
   const supabase = await createClient();
@@ -54,17 +55,14 @@ export default async function RecurringPage() {
             </div>
           </div>
 
-          {list.length === 0 ? (
-            <div className="bg-gray-900 border border-gray-800 rounded-2xl p-10 text-center">
-              <p className="text-4xl mb-3">🔄</p>
-              <h3 className="text-lg font-semibold mb-2">
-                No recurring transactions
-              </h3>
-              <p className="text-gray-400 text-sm max-w-md mx-auto">
-                On the dashboard, check <strong>Repeat this transaction</strong>{" "}
-                when adding a new transaction to set up a recurring one.
-              </p>
-            </div>
+                    {list.length === 0 ? (
+            <EmptyState
+              icon="🔄"
+              title="No recurring transactions"
+              description="On the dashboard, check 'Repeat this transaction' when adding a new transaction to set up a recurring one."
+              actionLabel="Go to Dashboard"
+              actionHref="/dashboard"
+            />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {list.map((t) => (

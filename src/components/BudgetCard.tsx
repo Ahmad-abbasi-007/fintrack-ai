@@ -1,5 +1,6 @@
 import { deleteBudget } from "@/app/dashboard/budget-actions";
 import type { BudgetStatus } from "@/lib/types";
+import { formatCurrency } from "@/lib/currency";
 
 const STYLE: Record<
   BudgetStatus["state"],
@@ -35,8 +36,8 @@ export default function BudgetCard({ status }: { status: BudgetStatus }) {
       <div className="flex items-start justify-between mb-4">
         <div>
           <h4 className="font-semibold">{budget.category}</h4>
-          <p className="text-xs text-gray-400 mt-0.5">
-            Limit: ${Number(budget.monthly_limit).toFixed(2)}
+                    <p className="text-xs text-gray-400 mt-0.5">
+            Limit: {formatCurrency(budget.monthly_limit)}
           </p>
         </div>
         <form action={deleteBudget}>
@@ -52,10 +53,10 @@ export default function BudgetCard({ status }: { status: BudgetStatus }) {
       </div>
 
       <div className="flex items-baseline justify-between mb-2 text-sm">
-        <span className="text-gray-400">
+                <span className="text-gray-400">
           Spent:{" "}
           <span className="text-white font-medium">
-            ${spent.toFixed(2)}
+            {formatCurrency(spent)}
           </span>
         </span>
         <span className={`text-xs font-medium ${s.text}`}>
@@ -74,8 +75,8 @@ export default function BudgetCard({ status }: { status: BudgetStatus }) {
         <span className={`text-xs ${s.text}`}>
           {s.icon} {s.label}
         </span>
-        <span className="text-xs text-gray-400">
-          ${remaining.toFixed(2)} left
+                <span className="text-xs text-gray-400">
+          {formatCurrency(remaining)} left
         </span>
       </div>
     </div>

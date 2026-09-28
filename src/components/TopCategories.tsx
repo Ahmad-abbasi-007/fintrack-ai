@@ -1,4 +1,5 @@
 import type { CategoryStat } from "@/lib/stats";
+import { formatCurrency } from "@/lib/currency";
 
 export default function TopCategories({
   data,
@@ -29,7 +30,7 @@ export default function TopCategories({
                     {item.category}
                   </span>
                   <span className="text-gray-400 shrink-0">
-                    ${item.amount.toFixed(2)} ({pct.toFixed(0)}%)
+                    {formatCurrency(item.amount)} ({pct.toFixed(0)}%)
                   </span>
                 </div>
                 <div className="h-2 bg-gray-950 rounded-full overflow-hidden">

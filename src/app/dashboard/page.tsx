@@ -15,6 +15,7 @@ import {
   getMonthlyStats,
 } from "@/lib/stats";
 import { getBudgetStatuses } from "@/lib/budget-stats";
+import { formatCurrency } from "@/lib/currency";
 import type { Transaction, Budget as BudgetType } from "@/lib/types";
 
 export default async function DashboardPage() {
@@ -84,19 +85,19 @@ export default async function DashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             <StatCard
               label="Total Balance"
-              value={`$${balance.toFixed(2)}`}
+              value={formatCurrency(balance)}
               icon="💰"
               color={balance >= 0 ? "text-emerald-400" : "text-red-400"}
             />
             <StatCard
               label="Total Income"
-              value={`$${totalIncome.toFixed(2)}`}
+              value={formatCurrency(totalIncome)}
               icon="📈"
               color="text-emerald-400"
             />
             <StatCard
               label="Total Expenses"
-              value={`$${totalExpense.toFixed(2)}`}
+              value={formatCurrency(totalExpense)}
               icon="📉"
               color="text-red-400"
             />

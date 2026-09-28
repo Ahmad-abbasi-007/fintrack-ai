@@ -1,29 +1,38 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { addTransaction } from "@/app/dashboard/actions";
 import type { Category, TransactionType } from "@/lib/types";
 import type { ReceiptData } from "@/app/dashboard/receipt-actions";
+import { CURRENCY_SYMBOL } from "@/lib/currency";
 
 export default function AddTransactionForm({
   categories,
   prefill,
-  onPrefillConsumed,
 }: {
   categories: Category[];
   prefill: ReceiptData | null;
-  onPrefillConsumed: () => void;
 }) {
-  const [type, setType] = useState<TransactionType>("expense");
-  const [category, setCategory] = useState<string>("");
-  const [amount, setAmount] = useState("");
-  const [description, setDescription] = useState("");
+  const initialType = prefill?.type ?? "expense";
+  const initialCategories = categories
+    .filter((c) => c.type === initialType)
+    .map((c) => c.name);
+  const [type, setType] = useState<TransactionType>(initialType);
+  const [category, setCategory] = useState(
+    prefill?.category ?? initialCategories[0] ?? ""
+  );
+  const [amount, setAmount] = useState(
+    prefill ? String(prefill.amount) : ""
+  );
+  const [description, setDescription] = useState(
+    prefill?.description ?? ""
+  );
   const [date, setDate] = useState(
-    new Date().toISOString().split("T")[0]
+    prefill?.transaction_date ?? new Date().toISOString().split("T")[0]
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-    const [isRecurring, setIsRecurring] = useState(false);
+  const [isRecurring, setIsRecurring] = useState(false);
   const [recurrence, setRecurrence] = useState<"weekly" | "monthly" | "yearly">(
     "monthly"
   );
@@ -31,27 +40,6 @@ export default function AddTransactionForm({
   const availableCategories = categories
     .filter((c) => c.type === type)
     .map((c) => c.name);
-
-  // Initialize category once categories load
-  useEffect(() => {
-    if (!category && availableCategories.length > 0) {
-      setCategory(availableCategories[0]);
-    }
-  }, [availableCategories, category]);
-
-  // Apply AI prefill
-  useEffect(() => {
-    if (!prefill) return;
-
-    setType(prefill.type);
-
-    // If AI returned a category not in the list, still accept it
-    setCategory(prefill.category);
-    setAmount(String(prefill.amount));
-    setDescription(prefill.description);
-    setDate(prefill.transaction_date);
-    onPrefillConsumed();
-  }, [prefill, onPrefillConsumed]);
 
   function handleTypeChange(newType: TransactionType) {
     setType(newType);
@@ -118,7 +106,9 @@ export default function AddTransactionForm({
         <input type="hidden" name="type" value={type} />
 
         <div>
-          <label className="block text-sm text-gray-300 mb-1">Amount</label>
+          <label className="block text-sm text-gray-300 mb-1">
+            Amount ({CURRENCY_SYMBOL})
+          </label>
           <input
             type="number"
             name="amount"

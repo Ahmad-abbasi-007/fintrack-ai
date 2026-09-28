@@ -1,3 +1,7 @@
+"use client";
+
+import { formatSignedCurrency } from "@/lib/currency";
+import { useState } from "react";
 import {
   deleteRecurringSeries,
   toggleRecurring,
@@ -9,12 +13,13 @@ export default function RecurringCard({
 }: {
   transaction: Transaction;
 }) {
+  const [currentTime] = useState(() => Date.now());
   const isIncome = transaction.type === "income";
   const next = transaction.next_occurrence;
 
   const daysUntil = next
     ? Math.ceil(
-        (new Date(next).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+        (new Date(next).getTime() - currentTime) / (1000 * 60 * 60 * 24)
       )
     : null;
 
@@ -53,12 +58,12 @@ export default function RecurringCard({
           </div>
         </div>
 
-        <p
+                <p
           className={`font-semibold shrink-0 ${
             isIncome ? "text-emerald-400" : "text-red-400"
           }`}
         >
-          {isIncome ? "+" : "-"}${Number(transaction.amount).toFixed(2)}
+          {formatSignedCurrency(transaction.amount, transaction.type)}
         </p>
       </div>
 

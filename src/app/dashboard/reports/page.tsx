@@ -7,6 +7,7 @@ import ExportCSVButton from "@/components/ExportCSVButton";
 import TransactionList from "@/components/TransactionList";
 import { applyFilters, type ReportFilters as RF } from "@/lib/report-filters";
 import type { Transaction } from "@/lib/types";
+import { formatCurrency } from "@/lib/currency";
 
 type SearchParams = Promise<{
   range?: string;
@@ -92,19 +93,19 @@ export default async function ReportsPage({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <StatCard
               label="Income (filtered)"
-              value={`$${totalIncome.toFixed(2)}`}
+              value={formatCurrency(totalIncome)}
               icon="📈"
               color="text-emerald-400"
             />
             <StatCard
               label="Expenses (filtered)"
-              value={`$${totalExpense.toFixed(2)}`}
+              value={formatCurrency(totalExpense)}
               icon="📉"
               color="text-red-400"
             />
             <StatCard
               label="Net (filtered)"
-              value={`$${net.toFixed(2)}`}
+              value={formatCurrency(net)}
               icon="💰"
               color={net >= 0 ? "text-emerald-400" : "text-red-400"}
             />

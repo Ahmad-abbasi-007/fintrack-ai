@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { upsertBudget } from "@/app/dashboard/budget-actions";
 import { EXPENSE_CATEGORIES } from "@/lib/types";
+import { CURRENCY_SYMBOL } from "@/lib/currency";
 
 export default function BudgetForm({
   existingCategories,
@@ -59,7 +60,7 @@ export default function BudgetForm({
 
         <div>
           <label className="block text-sm text-gray-300 mb-1">
-            Monthly Limit ($)
+            Monthly Limit ({CURRENCY_SYMBOL})
           </label>
           <input
             type="number"
