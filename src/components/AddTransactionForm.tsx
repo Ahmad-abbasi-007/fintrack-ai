@@ -23,6 +23,10 @@ export default function AddTransactionForm({
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+    const [isRecurring, setIsRecurring] = useState(false);
+  const [recurrence, setRecurrence] = useState<"weekly" | "monthly" | "yearly">(
+    "monthly"
+  );
 
   const availableCategories = categories
     .filter((c) => c.type === type)
@@ -63,6 +67,8 @@ export default function AddTransactionForm({
 
     try {
       await addTransaction(formData);
+      setIsRecurring(false);
+      setRecurrence("monthly");
       setAmount("");
       setDescription("");
       setDate(new Date().toISOString().split("T")[0]);
@@ -191,6 +197,43 @@ export default function AddTransactionForm({
             className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2.5 focus:outline-none focus:border-emerald-500"
           />
         </div>
+                <div className="border-t border-gray-800 pt-4">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              name="is_recurring"
+              checked={isRecurring}
+              onChange={(e) => setIsRecurring(e.target.checked)}
+              className="w-4 h-4 accent-emerald-500"
+            />
+            <span className="text-sm text-gray-300">
+              🔄 Repeat this transaction
+            </span>
+          </label>
+
+          {isRecurring && (
+            <div className="mt-3">
+              <label className="block text-sm text-gray-300 mb-1">
+                Repeats
+              </label>
+              <select
+                name="recurrence"
+                value={recurrence}
+                onChange={(e) =>
+                  setRecurrence(
+                    e.target.value as "weekly" | "monthly" | "yearly"
+                  )
+                }
+                className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2.5 focus:outline-none focus:border-emerald-500"
+              >
+                <option value="weekly">Every Week</option>
+                <option value="monthly">Every Month</option>
+                <option value="yearly">Every Year</option>
+              </select>
+            </div>
+          )}
+        </div>
+
 
         {error && (
           <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg p-3">

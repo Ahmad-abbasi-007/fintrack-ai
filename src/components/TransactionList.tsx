@@ -42,9 +42,19 @@ export default function TransactionList({
                 >
                   {isIncome ? "📈" : "📉"}
                 </div>
-                <div className="min-w-0">
-                  <p className="font-medium truncate">
+                                <div className="min-w-0">
+                  <p className="font-medium truncate flex items-center gap-2">
                     {t.description || t.category}
+                    {t.is_recurring && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                        🔄 {t.recurrence}
+                      </span>
+                    )}
+                    {t.parent_id && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-700/40 text-gray-400">
+                        auto
+                      </span>
+                    )}
                   </p>
                   <p className="text-xs text-gray-400">
                     {t.category} •{" "}

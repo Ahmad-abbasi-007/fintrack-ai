@@ -10,6 +10,8 @@ export type Transaction = {
   transaction_date: string;
   is_recurring: boolean;
   recurrence: "weekly" | "monthly" | "yearly" | null;
+  next_occurrence: string | null;
+  parent_id: string | null;
   created_at: string;
 };
 
@@ -59,4 +61,6 @@ export type Category = {
   type: "income" | "expense";
   created_at: string;
 };
+
+export type RecurrenceFrequency = "weekly" | "monthly" | "yearly";
 

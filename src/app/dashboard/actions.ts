@@ -23,6 +23,19 @@ export async function addTransaction(formData: FormData) {
     throw new Error("All required fields must be filled");
   }
 
+   const is_recurring = formData.get("is_recurring") === "on";
+  const recurrence = (formData.get("recurrence") as string) || null;
+
+  // Calculate next_occurrence if recurring
+  let next_occurrence: string | null = null;
+  if (is_recurring && recurrence) {
+    const d = new Date(transaction_date);
+    if (recurrence === "weekly") d.setDate(d.getDate() + 7);
+    else if (recurrence === "monthly") d.setMonth(d.getMonth() + 1);
+    else if (recurrence === "yearly") d.setFullYear(d.getFullYear() + 1);
+    next_occurrence = d.toISOString().split("T")[0];
+  }
+
   const { error } = await supabase.from("transactions").insert({
     user_id: user.id,
     type,
@@ -30,6 +43,9 @@ export async function addTransaction(formData: FormData) {
     category,
     description,
     transaction_date,
+    is_recurring,
+    recurrence: is_recurring ? recurrence : null,
+    next_occurrence,
   });
 
   if (error) throw new Error(error.message);

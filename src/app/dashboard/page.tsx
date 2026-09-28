@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { generateDueRecurring } from "@/app/dashboard/recurring-actions";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/Navbar";
@@ -24,6 +25,9 @@ export default async function DashboardPage() {
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
+    // Auto-generate any due recurring transactions
+  await generateDueRecurring();
+
 
   const { data: transactions } = await supabase
     .from("transactions")
