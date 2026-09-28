@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
@@ -12,7 +13,8 @@ import {
   getCategoryBreakdown,
   getMonthlyStats,
 } from "@/lib/stats";
-import type { Transaction } from "@/lib/types";
+import { getBudgetStatuses } from "@/lib/budget-stats";
+import type { Transaction, Budget as BudgetType } from "@/lib/types";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -44,6 +46,18 @@ export default async function DashboardPage() {
   const expenseByCategory = getCategoryBreakdown(list, "expense");
   const incomeByCategory = getCategoryBreakdown(list, "income");
   const monthly = getMonthlyStats(list, 6);
+
+  // Fetch budgets and compute statuses
+  const { data: budgetsData } = await supabase.from("budgets").select("*");
+  const budgets = (budgetsData ?? []) as BudgetType[];
+  const budgetStatuses = getBudgetStatuses(budgets, list);
+
+  const overBudgetCount = budgetStatuses.filter(
+    (s) => s.state === "exceeded"
+  ).length;
+  const warningCount = budgetStatuses.filter(
+    (s) => s.state === "warning"
+  ).length;
 
   const name = user.user_metadata?.full_name || "there";
 
@@ -83,7 +97,51 @@ export default async function DashboardPage() {
               color="text-red-400"
             />
           </div>
-               {/* AI Insights */}
+
+          {/* Budget alerts banner */}
+          {(overBudgetCount > 0 || warningCount > 0) && (
+            <div
+              className={`mb-6 rounded-2xl p-4 border flex items-center justify-between flex-wrap gap-3 ${
+                overBudgetCount > 0
+                  ? "bg-red-500/10 border-red-500/30"
+                  : "bg-amber-500/10 border-amber-500/30"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">
+                  {overBudgetCount > 0 ? "🚨" : "⚠️"}
+                </span>
+                <div>
+                  <p
+                    className={`font-semibold ${
+                      overBudgetCount > 0
+                        ? "text-red-400"
+                        : "text-amber-400"
+                    }`}
+                  >
+                    {overBudgetCount > 0
+                      ? `${overBudgetCount} budget${
+                          overBudgetCount > 1 ? "s" : ""
+                        } exceeded`
+                      : `${warningCount} budget${
+                          warningCount > 1 ? "s" : ""
+                        } approaching limit`}
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    Review your spending to stay on track.
+                  </p>
+                </div>
+              </div>
+              <Link
+                href="/dashboard/budgets"
+                className="text-sm bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg px-4 py-2"
+              >
+                View Budgets →
+              </Link>
+            </div>
+          )}
+
+          {/* AI Insights */}
           <div className="mb-6">
             <AIInsights />
           </div>

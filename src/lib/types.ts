@@ -32,3 +32,20 @@ export const EXPENSE_CATEGORIES = [
   "Bills",
   "Other",
 ];
+
+export type Budget = {
+  id: string;
+  user_id: string;
+  category: string;
+  monthly_limit: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type BudgetStatus = {
+  budget: Budget;
+  spent: number;
+  remaining: number;
+  percent: number;
+  state: "safe" | "warning" | "exceeded";
+};
