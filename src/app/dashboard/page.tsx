@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
-import AddTransactionForm from "@/components/AddTransactionForm";
+import TransactionInputPanel from "@/components/TransactionInputPanel";
 import TransactionList from "@/components/TransactionList";
 import CategoryPieChart from "@/components/CategoryPieChart";
 import AIInsights from "@/components/AIInsights";
@@ -112,7 +112,7 @@ export default async function DashboardPage() {
           {/* Add form + transactions */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1">
-              <AddTransactionForm />
+              <TransactionInputPanel />
             </div>
             <div className="lg:col-span-2">
               <TransactionList transactions={list} />

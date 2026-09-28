@@ -7,11 +7,33 @@ import {
   EXPENSE_CATEGORIES,
   type TransactionType,
 } from "@/lib/types";
+import type { ReceiptData } from "@/app/dashboard/receipt-actions";
 
-export default function AddTransactionForm() {
-  const [type, setType] = useState<TransactionType>("expense");
-  const [category, setCategory] = useState<string>(EXPENSE_CATEGORIES[0]);
-  const [customCategory, setCustomCategory] = useState("");
+export default function AddTransactionForm({
+  prefill,
+}: {
+  prefill: ReceiptData | null;
+}) {
+  const initialType = prefill?.type ?? "expense";
+  const initialCategories =
+    initialType === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+  const initialCategory = prefill?.category ?? initialCategories[0];
+  const hasCustomCategory = !initialCategories.includes(initialCategory);
+
+  const [type, setType] = useState<TransactionType>(initialType);
+  const [category, setCategory] = useState(
+    hasCustomCategory ? "Other" : initialCategory
+  );
+  const [customCategory, setCustomCategory] = useState(
+    hasCustomCategory ? initialCategory : ""
+  );
+  const [amount, setAmount] = useState(
+    prefill ? String(prefill.amount) : ""
+  );
+  const [description, setDescription] = useState(prefill?.description ?? "");
+  const [date, setDate] = useState(
+    prefill?.transaction_date ?? new Date().toISOString().split("T")[0]
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -46,6 +68,9 @@ export default function AddTransactionForm() {
         "add-transaction-form"
       ) as HTMLFormElement;
       form?.reset();
+      setAmount("");
+      setDescription("");
+      setDate(new Date().toISOString().split("T")[0]);
       setCustomCategory("");
       setCategory(
         type === "income" ? INCOME_CATEGORIES[0] : EXPENSE_CATEGORIES[0]
@@ -63,7 +88,6 @@ export default function AddTransactionForm() {
     <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
       <h3 className="text-lg font-semibold mb-4">Add Transaction</h3>
 
-      {/* Type toggle */}
       <div className="grid grid-cols-2 gap-2 mb-4">
         <button
           type="button"
@@ -104,6 +128,8 @@ export default function AddTransactionForm() {
             step="0.01"
             min="0.01"
             required
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
             placeholder="0.00"
             className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2.5 focus:outline-none focus:border-emerald-500"
           />
@@ -135,17 +161,13 @@ export default function AddTransactionForm() {
               type="text"
               value={customCategory}
               onChange={(e) => setCustomCategory(e.target.value)}
-              placeholder="e.g. Gym membership, Pet supplies..."
+              placeholder="e.g. Gym membership"
               required
               className="w-full bg-gray-950 border border-emerald-500/40 rounded-lg px-4 py-2.5 focus:outline-none focus:border-emerald-500"
             />
-            <p className="text-xs text-gray-500 mt-1">
-              Type what this transaction is really for.
-            </p>
           </div>
         )}
 
-        {/* Date field with custom emerald calendar icon */}
         <div>
           <label className="block text-sm text-gray-300 mb-1">Date</label>
           <div className="relative">
@@ -153,7 +175,8 @@ export default function AddTransactionForm() {
               type="date"
               name="transaction_date"
               required
-              defaultValue={new Date().toISOString().split("T")[0]}
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
               className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2.5 pr-12 focus:outline-none focus:border-emerald-500"
             />
             <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none z-10 text-emerald-400">
@@ -184,6 +207,8 @@ export default function AddTransactionForm() {
           <input
             type="text"
             name="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
             placeholder="e.g. Grocery shopping"
             className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2.5 focus:outline-none focus:border-emerald-500"
           />
