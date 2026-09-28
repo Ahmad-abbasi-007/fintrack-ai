@@ -8,6 +8,8 @@ export type Transaction = {
   category: string;
   description: string | null;
   transaction_date: string;
+  is_recurring: boolean;
+  recurrence: "weekly" | "monthly" | "yearly" | null;
   created_at: string;
 };
 
@@ -49,3 +51,12 @@ export type BudgetStatus = {
   percent: number;
   state: "safe" | "warning" | "exceeded";
 };
+
+export type Category = {
+  id: string;
+  user_id: string;
+  name: string;
+  type: "income" | "expense";
+  created_at: string;
+};
+

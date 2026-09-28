@@ -1,80 +1,71 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { addTransaction } from "@/app/dashboard/actions";
-import {
-  INCOME_CATEGORIES,
-  EXPENSE_CATEGORIES,
-  type TransactionType,
-} from "@/lib/types";
+import type { Category, TransactionType } from "@/lib/types";
 import type { ReceiptData } from "@/app/dashboard/receipt-actions";
 
 export default function AddTransactionForm({
+  categories,
   prefill,
+  onPrefillConsumed,
 }: {
+  categories: Category[];
   prefill: ReceiptData | null;
+  onPrefillConsumed: () => void;
 }) {
-  const initialType = prefill?.type ?? "expense";
-  const initialCategories =
-    initialType === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
-  const initialCategory = prefill?.category ?? initialCategories[0];
-  const hasCustomCategory = !initialCategories.includes(initialCategory);
-
-  const [type, setType] = useState<TransactionType>(initialType);
-  const [category, setCategory] = useState(
-    hasCustomCategory ? "Other" : initialCategory
-  );
-  const [customCategory, setCustomCategory] = useState(
-    hasCustomCategory ? initialCategory : ""
-  );
-  const [amount, setAmount] = useState(
-    prefill ? String(prefill.amount) : ""
-  );
-  const [description, setDescription] = useState(prefill?.description ?? "");
+  const [type, setType] = useState<TransactionType>("expense");
+  const [category, setCategory] = useState<string>("");
+  const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
   const [date, setDate] = useState(
-    prefill?.transaction_date ?? new Date().toISOString().split("T")[0]
+    new Date().toISOString().split("T")[0]
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const categories =
-    type === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+  const availableCategories = categories
+    .filter((c) => c.type === type)
+    .map((c) => c.name);
+
+  // Initialize category once categories load
+  useEffect(() => {
+    if (!category && availableCategories.length > 0) {
+      setCategory(availableCategories[0]);
+    }
+  }, [availableCategories, category]);
+
+  // Apply AI prefill
+  useEffect(() => {
+    if (!prefill) return;
+
+    setType(prefill.type);
+
+    // If AI returned a category not in the list, still accept it
+    setCategory(prefill.category);
+    setAmount(String(prefill.amount));
+    setDescription(prefill.description);
+    setDate(prefill.transaction_date);
+    onPrefillConsumed();
+  }, [prefill, onPrefillConsumed]);
 
   function handleTypeChange(newType: TransactionType) {
     setType(newType);
-    const list =
-      newType === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
-    setCategory(list[0]);
-    setCustomCategory("");
+    const list = categories
+      .filter((c) => c.type === newType)
+      .map((c) => c.name);
+    setCategory(list[0] || "");
   }
 
   async function handleSubmit(formData: FormData) {
     setLoading(true);
     setError("");
 
-    if (category === "Other") {
-      const trimmed = customCategory.trim();
-      if (!trimmed) {
-        setError("Please describe your custom category.");
-        setLoading(false);
-        return;
-      }
-      formData.set("category", trimmed);
-    }
-
     try {
       await addTransaction(formData);
-      const form = document.getElementById(
-        "add-transaction-form"
-      ) as HTMLFormElement;
-      form?.reset();
       setAmount("");
       setDescription("");
       setDate(new Date().toISOString().split("T")[0]);
-      setCustomCategory("");
-      setCategory(
-        type === "income" ? INCOME_CATEGORIES[0] : EXPENSE_CATEGORIES[0]
-      );
     } catch (e: unknown) {
       const message =
         e instanceof Error ? e.message : "Something went wrong";
@@ -144,29 +135,16 @@ export default function AddTransactionForm({
             required
             className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2.5 focus:outline-none focus:border-emerald-500"
           >
-            {categories.map((c) => (
+            {availableCategories.length === 0 && (
+              <option value="">No categories — add one first</option>
+            )}
+            {availableCategories.map((c) => (
               <option key={c} value={c}>
                 {c}
               </option>
             ))}
           </select>
         </div>
-
-        {category === "Other" && (
-          <div>
-            <label className="block text-sm text-gray-300 mb-1">
-              Custom Category
-            </label>
-            <input
-              type="text"
-              value={customCategory}
-              onChange={(e) => setCustomCategory(e.target.value)}
-              placeholder="e.g. Gym membership"
-              required
-              className="w-full bg-gray-950 border border-emerald-500/40 rounded-lg px-4 py-2.5 focus:outline-none focus:border-emerald-500"
-            />
-          </div>
-        )}
 
         <div>
           <label className="block text-sm text-gray-300 mb-1">Date</label>
@@ -222,7 +200,7 @@ export default function AddTransactionForm({
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !category}
           className="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-semibold py-2.5 rounded-lg disabled:opacity-50"
         >
           {loading ? "Adding..." : "Add Transaction"}
