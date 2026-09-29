@@ -92,3 +92,50 @@ export type CurrencyOption = {
   symbol: string;
   label: string;
 };
+
+export type Goal = {
+  id: string;
+  user_id: string;
+  name: string;
+  target_amount: number;
+  saved_amount: number;
+  deadline: string | null;
+  icon: string;
+  color: string;
+  is_completed: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type GoalContribution = {
+  id: string;
+  goal_id: string;
+  user_id: string;
+  amount: number;
+  note: string | null;
+  created_at: string;
+};
+
+export const GOAL_ICONS = [
+  "🎯",
+  "💻",
+  "🏠",
+  "🚗",
+  "✈️",
+  "🎓",
+  "💍",
+  "📱",
+  "🎮",
+  "🏖️",
+  "💰",
+  "🎁",
+];
+
+export const GOAL_COLORS: Record<string, { bg: string; text: string; bar: string }> = {
+  emerald: { bg: "bg-emerald-500/10", text: "text-emerald-400", bar: "bg-emerald-500" },
+  blue: { bg: "bg-blue-500/10", text: "text-blue-400", bar: "bg-blue-500" },
+  violet: { bg: "bg-violet-500/10", text: "text-violet-400", bar: "bg-violet-500" },
+  pink: { bg: "bg-pink-500/10", text: "text-pink-400", bar: "bg-pink-500" },
+  amber: { bg: "bg-amber-500/10", text: "text-amber-400", bar: "bg-amber-500" },
+  red: { bg: "bg-red-500/10", text: "text-red-400", bar: "bg-red-500" },
+};

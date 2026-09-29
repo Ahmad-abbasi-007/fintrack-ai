@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { getGoalStatus } from "@/lib/goal-stats";
+import type { Goal as GoalType } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/Navbar";
 import MonthComparison from "@/components/MonthComparison";
@@ -58,9 +60,18 @@ export default async function DashboardPage() {
   const overBudgetCount = budgetStatuses.filter(
     (s) => s.state === "exceeded"
   ).length;
+  
   const warningCount = budgetStatuses.filter(
     (s) => s.state === "warning"
   ).length;
+
+    // Fetch goals
+  const { data: goalsData } = await supabase.from("goals").select("*");
+  const goals = (goalsData ?? []) as GoalType[];
+  const topGoals = goals
+    .filter((g) => !g.is_completed)
+    .slice(0, 3)
+    .map(getGoalStatus);
 
   const name = user.user_metadata?.full_name || "there";
 
@@ -149,6 +160,43 @@ export default async function DashboardPage() {
           <div className="mb-6">
             <AIInsights />
           </div>
+                    {/* Goals preview */}
+          {topGoals.length > 0 && (
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-semibold">🎯 Your Goals</h2>
+                <Link
+                  href="/dashboard/goals"
+                  className="text-sm text-emerald-400 hover:underline"
+                >
+                  View all →
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {topGoals.map((s) => (
+                  <div
+                    key={s.goal.id}
+                    className="bg-gray-900 border border-gray-800 rounded-2xl p-5"
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-2xl">{s.goal.icon}</span>
+                      <p className="font-medium truncate">{s.goal.name}</p>
+                    </div>
+                    <div className="h-2 bg-gray-950 rounded-full overflow-hidden mb-2">
+                      <div
+                        className="h-full bg-emerald-500 transition-all"
+                        style={{ width: `${s.percent}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-400">
+                      {s.percent.toFixed(0)}% •{" "}
+                      {formatCurrency(s.remaining)} to go
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
                     {/* Charts row */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
