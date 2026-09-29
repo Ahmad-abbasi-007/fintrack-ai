@@ -9,6 +9,7 @@ const links = [
   { href: "/dashboard/recurring", label: "Recurring", icon: "🔄" },
   { href: "/dashboard/reports", label: "Reports", icon: "📄" },
   { href: "/dashboard/categories", label: "Categories", icon: "🏷️" },
+  { href: "/dashboard/settings", label: "Settings", icon: "⚙️" },
   { href: "/profile", label: "Profile", icon: "👤" },
 ];
 

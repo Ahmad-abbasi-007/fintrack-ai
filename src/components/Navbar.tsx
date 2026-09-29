@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import ThemeToggle from "@/components/ThemeToggle";
 import NotificationBell from "@/components/NotificationBell";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -48,6 +49,7 @@ export default function Navbar() {
       <div className="flex items-center gap-4">
         {user ? (
           <>
+            <ThemeToggle />
             <NotificationBell />
           <div className="relative">
             <button
@@ -81,6 +83,7 @@ export default function Navbar() {
           </>
         ) : (
           <>
+            <ThemeToggle />
             <Link href="/login" className="text-gray-300 hover:text-white">
               Login
             </Link>
