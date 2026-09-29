@@ -5,6 +5,7 @@ import { addTransaction } from "@/app/dashboard/actions";
 import type { Category, TransactionType } from "@/lib/types";
 import type { ReceiptData } from "@/app/dashboard/receipt-actions";
 import { CURRENCY_SYMBOL } from "@/lib/currency";
+import { suggestCategory } from "@/app/dashboard/categorize-actions";
 
 export default function AddTransactionForm({
   categories,
@@ -32,6 +33,8 @@ export default function AddTransactionForm({
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [suggesting, setSuggesting] = useState(false);
+  const [suggestionInfo, setSuggestionInfo] = useState("");
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurrence, setRecurrence] = useState<"weekly" | "monthly" | "yearly">(
     "monthly"
@@ -178,14 +181,47 @@ export default function AddTransactionForm({
           <label className="block text-sm text-gray-300 mb-1">
             Description <span className="text-gray-500">(optional)</span>
           </label>
-          <input
-            type="text"
-            name="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="e.g. Grocery shopping"
-            className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2.5 focus:outline-none focus:border-emerald-500"
-          />
+                    <div className="flex gap-2">
+            <input
+              type="text"
+              name="description"
+              value={description}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                setSuggestionInfo("");
+              }}
+              placeholder="e.g. Grocery shopping"
+              className="flex-1 bg-gray-950 border border-gray-800 rounded-lg px-4 py-2.5 focus:outline-none focus:border-emerald-500"
+            />
+            <button
+              type="button"
+              disabled={suggesting || !description.trim()}
+              onClick={async () => {
+                setSuggesting(true);
+                setSuggestionInfo("");
+                try {
+                  const cat = await suggestCategory(description, type);
+                  if (cat) {
+                    setCategory(cat);
+                    setSuggestionInfo(`🤖 AI suggested: ${cat}`);
+                  } else {
+                    setSuggestionInfo("🤖 Couldn't match a category");
+                  }
+                } catch {
+                  setSuggestionInfo("🤖 AI unavailable right now");
+                } finally {
+                  setSuggesting(false);
+                }
+              }}
+              className="bg-violet-500 hover:bg-violet-600 disabled:opacity-50 text-white text-sm font-semibold px-3 rounded-lg shrink-0"
+              title="Let AI pick the category"
+            >
+              {suggesting ? "..." : "🤖"}
+            </button>
+          </div>
+          {suggestionInfo && (
+            <p className="text-xs text-violet-400 mt-1">{suggestionInfo}</p>
+          )}
         </div>
                 <div className="border-t border-gray-800 pt-4">
           <label className="flex items-center gap-3 cursor-pointer">

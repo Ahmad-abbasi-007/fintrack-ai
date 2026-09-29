@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import NotificationBell from "@/components/NotificationBell";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -46,6 +47,8 @@ export default function Navbar() {
 
       <div className="flex items-center gap-4">
         {user ? (
+          <>
+            <NotificationBell />
           <div className="relative">
             <button
               onClick={() => setMenuOpen((v) => !v)}
@@ -75,6 +78,7 @@ export default function Navbar() {
               </div>
             )}
           </div>
+          </>
         ) : (
           <>
             <Link href="/login" className="text-gray-300 hover:text-white">

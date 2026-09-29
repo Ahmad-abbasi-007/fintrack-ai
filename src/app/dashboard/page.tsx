@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
-import { generateDueRecurring } from "@/app/dashboard/recurring-actions";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/Navbar";
+import MonthComparison from "@/components/MonthComparison";
 import Sidebar from "@/components/Sidebar";
 import TransactionInputPanel from "@/components/TransactionInputPanel";
 import TransactionList from "@/components/TransactionList";
@@ -10,6 +10,7 @@ import CategoryPieChart from "@/components/CategoryPieChart";
 import AIInsights from "@/components/AIInsights";
 import MonthlyBarChart from "@/components/MonthlyBarChart";
 import TopCategories from "@/components/TopCategories";
+import DashboardMaintenance from "@/components/DashboardMaintenance";
 import {
   getCategoryBreakdown,
   getMonthlyStats,
@@ -26,9 +27,6 @@ export default async function DashboardPage() {
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
-    // Auto-generate any due recurring transactions
-  await generateDueRecurring();
-
 
   const { data: transactions } = await supabase
     .from("transactions")
@@ -68,6 +66,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white flex">
+      <DashboardMaintenance />
       <Sidebar />
 
       <div className="flex-1 flex flex-col">
@@ -151,13 +150,20 @@ export default async function DashboardPage() {
             <AIInsights />
           </div>
 
-          {/* Charts row */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <CategoryPieChart
-              data={expenseByCategory}
-              title="Expenses by Category"
-            />
-            <MonthlyBarChart data={monthly} />
+                    {/* Charts row */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div className="lg:col-span-1">
+              <MonthComparison transactions={list} />
+            </div>
+            <div className="lg:col-span-1">
+              <CategoryPieChart
+                data={expenseByCategory}
+                title="Expenses by Category"
+              />
+            </div>
+            <div className="lg:col-span-1">
+              <MonthlyBarChart data={monthly} />
+            </div>
           </div>
 
           {/* Top categories + income breakdown */}

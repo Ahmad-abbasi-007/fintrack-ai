@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import RecurringCard from "@/components/RecurringCard";
-import { generateDueRecurring } from "@/app/dashboard/recurring-actions";
+import DashboardMaintenance from "@/components/DashboardMaintenance";
 import type { Transaction } from "@/lib/types";
 import EmptyState from "@/components/EmptyState";
 
@@ -15,9 +15,6 @@ export default async function RecurringPage() {
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
-
-  // Auto-generate any due recurring transactions before rendering
-  await generateDueRecurring();
 
   const { data: recurring } = await supabase
     .from("transactions")
@@ -32,6 +29,7 @@ export default async function RecurringPage() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white flex">
+      <DashboardMaintenance />
       <Sidebar />
 
       <div className="flex-1 flex flex-col">

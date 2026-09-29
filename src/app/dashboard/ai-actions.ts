@@ -1,8 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@/lib/supabase/server";
+import { callGroqJson } from "@/lib/ai/groq";
 import type { Transaction } from "@/lib/types";
 
 export type Insight = {
@@ -11,46 +11,22 @@ export type Insight = {
   type: "warning" | "success" | "tip";
 };
 
-const MODEL_CANDIDATES = [
-  "gemini-3.8-flash",
-  "gemini-2.5-flash",
-  "gemini-2.0-flash",
-  "gemini-flash-latest",
-];
-
-async function withRetry<T>(
-  fn: () => Promise<T>,
-  attempts = 3,
-  baseDelayMs = 1500
-): Promise<T> {
-  let lastError: unknown;
-  for (let i = 0; i < attempts; i++) {
-    try {
-      return await fn();
-    } catch (e) {
-      lastError = e;
-      const msg = e instanceof Error ? e.message : String(e);
-      const isRetryable = msg.includes("503") || msg.includes("high demand");
-      if (!isRetryable || i === attempts - 1) throw e;
-      await new Promise((r) => setTimeout(r, baseDelayMs * (i + 1)));
-    }
-  }
-  throw lastError;
-}
-
 export async function generateInsights(): Promise<Insight[]> {
   const supabase = await createClient();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
 
-  const { data: transactions } = await supabase
+  const { data: transactions, error } = await supabase
     .from("transactions")
     .select("*")
+    .eq("user_id", user.id)
     .order("transaction_date", { ascending: false })
     .limit(100);
+  if (error) throw new Error("Could not load transactions for AI insights.");
 
   const list = (transactions ?? []) as Transaction[];
 
@@ -65,11 +41,6 @@ export async function generateInsights(): Promise<Insight[]> {
     ];
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not configured");
-  }
-
   const summary = list.map((t) => ({
     type: t.type,
     amount: Number(t.amount),
@@ -82,8 +53,7 @@ export async function generateInsights(): Promise<Insight[]> {
 
 Analyze these transactions and return EXACTLY 4 insights.
 
-Return ONLY a JSON object (no markdown, no explanation):
-
+Return ONLY JSON:
 {
   "insights": [
     { "title": "Short headline (max 8 words)", "description": "One-sentence advice with real numbers (max 25 words)", "type": "warning" },
@@ -99,56 +69,45 @@ Rules:
 - "success" = good habit observed
 - "tip" = actionable advice
 - Be specific, not generic.
-- Return ONLY JSON.
 
 Transactions:
 ${JSON.stringify(summary)}`;
 
-  const genAI = new GoogleGenerativeAI(apiKey);
+  const parsed = await callGroqJson(prompt, 0.7);
+  if (!parsed || typeof parsed !== "object" || !("insights" in parsed)) {
+    throw new Error("AI returned an invalid insights response.");
+  }
 
-  let text: string | null = null;
-  let lastError: Error | null = null;
+  const rows = (parsed as { insights: unknown }).insights;
+  if (!Array.isArray(rows)) {
+    throw new Error("AI returned an invalid insights response.");
+  }
 
-  for (const modelName of MODEL_CANDIDATES) {
-    try {
-      const model = genAI.getGenerativeModel({
-        model: modelName,
-        generationConfig: {
-          temperature: 0.7,
-          responseMimeType: "application/json",
-        },
-      });
-
-      const result = await withRetry(async () =>
-        model.generateContent(prompt)
-      );
-
-      text = result.response.text().trim();
-      break;
-    } catch (e) {
-      lastError = e instanceof Error ? e : new Error(String(e));
-      continue;
+  const insights = rows.flatMap((row): Insight[] => {
+    if (!row || typeof row !== "object") return [];
+    const item = row as Record<string, unknown>;
+    if (
+      typeof item.title !== "string" ||
+      !item.title.trim() ||
+      typeof item.description !== "string" ||
+      !item.description.trim() ||
+      (item.type !== "warning" &&
+        item.type !== "success" &&
+        item.type !== "tip")
+    ) {
+      return [];
     }
-  }
+    return [
+      {
+        title: item.title.trim(),
+        description: item.description.trim(),
+        type: item.type,
+      },
+    ];
+  });
 
-  if (!text) {
-    throw new Error(
-      `All Gemini models are busy right now. Please try again in a minute. (${
-        lastError?.message || "unknown error"
-      })`
-    );
+  if (insights.length === 0) {
+    throw new Error("AI did not return any usable insights.");
   }
-
-  const cleaned = text
-    .replace(/^```json\s*/i, "")
-    .replace(/^```\s*/i, "")
-    .replace(/```$/i, "")
-    .trim();
-
-  try {
-    const parsed = JSON.parse(cleaned);
-    return (parsed.insights as Insight[]) ?? [];
-  } catch {
-    throw new Error("Failed to parse AI response");
-  }
+  return insights.slice(0, 4);
 }

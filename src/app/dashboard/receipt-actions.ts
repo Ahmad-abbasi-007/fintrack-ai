@@ -18,12 +18,8 @@ export type ReceiptData = {
 
 const MODEL_CANDIDATES = [
   "gemini-3.8-flash",
-  "gemini-2.5-flash",
-  "gemini-2.0-flash",
-  "gemini-flash-latest",
 ];
 
-// Helper: retry a function on 503 errors with exponential backoff
 async function withRetry<T>(
   fn: () => Promise<T>,
   attempts = 3,
@@ -36,11 +32,11 @@ async function withRetry<T>(
     } catch (e) {
       lastError = e;
       const msg = e instanceof Error ? e.message : String(e);
-      const isRetryable = msg.includes("503") || msg.includes("high demand");
-
-      if (!isRetryable || i === attempts - 1) throw e;
-
-      // Exponential backoff: 1.5s, 3s, 4.5s
+      const retryable =
+        msg.includes("503") ||
+        msg.includes("high demand") ||
+        msg.includes("429");
+      if (!retryable || i === attempts - 1) throw e;
       await new Promise((r) => setTimeout(r, baseDelayMs * (i + 1)));
     }
   }
@@ -51,6 +47,9 @@ export async function scanReceipt(
   base64Image: string,
   mimeType: string
 ): Promise<ReceiptData> {
+  if (typeof base64Image !== "string" || typeof mimeType !== "string") {
+    throw new Error("Invalid receipt image.");
+  }
   const supabase = await createClient();
   const {
     data: { user },
@@ -59,14 +58,17 @@ export async function scanReceipt(
   if (!user) redirect("/login");
 
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not configured");
+  if (!apiKey) throw new Error("GEMINI_API_KEY is not configured");
+  if (base64Image.length > 7_000_000) {
+    throw new Error("Image must be smaller than 5MB.");
+  }
+  if (!["image/jpeg", "image/png", "image/webp"].includes(mimeType)) {
+    throw new Error("Please upload a JPG, PNG, or WEBP image.");
   }
 
-  const prompt = `You are a receipt scanner AI. Analyze this receipt image and extract the transaction details.
+  const prompt = `You are a receipt scanner AI. Extract transaction details from this receipt image.
 
-Return ONLY a JSON object with this exact structure (no markdown, no explanation):
-
+Return ONLY JSON:
 {
   "type": "expense",
   "amount": 45.99,
@@ -76,57 +78,62 @@ Return ONLY a JSON object with this exact structure (no markdown, no explanation
 }
 
 Rules:
-- "type" is almost always "expense" for receipts. Use "income" only if the receipt clearly shows a refund or deposit.
-- "amount" is the FINAL total in PKR (Pakistani Rupees), after tax/tip. Return only the number, with no currency symbol.
-- Pakistani receipts may show "Rs." or "PKR" before the amount; strip that prefix and return only the numeric value.
-- "category" MUST be exactly one of these:
+- "type": usually "expense". "income" only for refunds.
+- "amount": final total in PKR (number only, no "Rs." or "PKR").
+- "category" MUST be one of:
   EXPENSE: ${EXPENSE_CATEGORIES.join(", ")}
   INCOME: ${INCOME_CATEGORIES.join(", ")}
-  If unsure, use "Other".
-- "description" is a short one-line summary (e.g. "Lunch at Pizza Hut", "Gas at Shell").
-- "transaction_date" must be in YYYY-MM-DD format. If unclear, use today's date.
+- "description": short summary like "Lunch at Pizza Hut".
+- "transaction_date": YYYY-MM-DD. Use today if unclear.
 
-Return ONLY the JSON.`;
+Return ONLY JSON.`;
 
   const genAI = new GoogleGenerativeAI(apiKey);
 
-  // Try each model with retry
   let text: string | null = null;
   let lastError: Error | null = null;
 
   for (const modelName of MODEL_CANDIDATES) {
     try {
-      const model = genAI.getGenerativeModel({ model: modelName });
-
+      const model = genAI.getGenerativeModel({
+        model: modelName,
+        generationConfig: { responseMimeType: "application/json" },
+      });
       const result = await withRetry(async () =>
         model.generateContent([
           prompt,
-          {
-            inlineData: {
-              data: base64Image,
-              mimeType,
-            },
-          },
+          { inlineData: { data: base64Image, mimeType } },
         ])
       );
-
       text = result.response.text().trim();
-      break; // success
+      break;
     } catch (e) {
       lastError = e instanceof Error ? e : new Error(String(e));
-      continue; // try next model
+      continue;
     }
   }
 
   if (!text) {
-    throw new Error(
-      `All Gemini models are busy right now. Please try again in a minute. (${
-        lastError?.message || "unknown error"
-      })`
-    );
+    const msg = lastError?.message || "";
+    if (msg.includes("429") || msg.includes("quota") || msg.includes("Too Many")) {
+      throw new Error(
+        "AI limit reached for today. Try again later or use manual entry."
+      );
+    }
+    if (msg.includes("503") || msg.includes("high demand")) {
+      throw new Error(
+        "AI is very busy right now. Please try again in a moment."
+      );
+    }
+    if (msg.includes("404") || msg.includes("NOT_FOUND")) {
+      throw new Error("Receipt AI model is unavailable. Check Gemini model access.");
+    }
+    if (msg.includes("API_KEY_INVALID") || msg.includes("403")) {
+      throw new Error("Gemini rejected the API key. Check GEMINI_API_KEY.");
+    }
+    throw new Error("Receipt scan failed. Try a clearer image or manual entry.");
   }
 
-  // Strip markdown fences just in case
   const cleaned = text
     .replace(/^```json\s*/i, "")
     .replace(/^```\s*/i, "")
@@ -140,17 +147,27 @@ Return ONLY the JSON.`;
     throw new Error("AI returned invalid data. Please try a clearer image.");
   }
 
-  if (!parsed.amount || isNaN(Number(parsed.amount))) {
+  if (!Number.isFinite(Number(parsed.amount)) || Number(parsed.amount) <= 0) {
     throw new Error("Could not detect amount on the receipt.");
   }
   if (parsed.type !== "income" && parsed.type !== "expense") {
     parsed.type = "expense";
   }
+  const allowedCategories =
+    parsed.type === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+  if (!allowedCategories.includes(parsed.category)) {
+    throw new Error("AI returned an unsupported receipt category.");
+  }
+  if (typeof parsed.description !== "string") {
+    throw new Error("AI returned an invalid receipt description.");
+  }
   if (!parsed.transaction_date) {
     parsed.transaction_date = new Date().toISOString().split("T")[0];
   }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(parsed.transaction_date)) {
+    throw new Error("AI returned an invalid receipt date.");
+  }
 
   parsed.amount = Number(parsed.amount);
-
   return parsed;
 }

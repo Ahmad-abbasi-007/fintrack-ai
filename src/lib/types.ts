@@ -64,3 +64,13 @@ export type Category = {
 
 export type RecurrenceFrequency = "weekly" | "monthly" | "yearly";
 
+export type AppNotification = {
+  id: string;
+  user_id: string;
+  type: "info" | "warning" | "danger" | "success";
+  title: string;
+  message: string;
+  link: string | null;
+  is_read: boolean;
+  created_at: string;
+};

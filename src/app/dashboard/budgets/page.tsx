@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import AIBudgetSuggestions from "@/components/AIBudgetSuggestions";
 import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
@@ -53,6 +54,7 @@ export default async function BudgetsPage() {
           <p className="text-gray-400 mb-8">
             Set monthly limits per category and stay on track.
           </p>
+                    <AIBudgetSuggestions />
 
           {/* Summary */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

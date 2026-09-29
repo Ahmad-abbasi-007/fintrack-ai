@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,6 +19,12 @@ export const metadata: Metadata = {
     "Pakistan",
   ],
   authors: [{ name: "Ahmad Abbasi" }],
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "FinTrack AI",
+  },
   openGraph: {
     title: "FinTrack AI — Smart Personal Finance Manager",
     description:
@@ -26,11 +33,16 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: "#10b981",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en">
       <body>{children}</body>
