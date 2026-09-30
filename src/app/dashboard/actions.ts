@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 export async function addTransaction(formData: FormData) {
   const supabase = await createClient();
 
+  const account_id = (formData.get("account_id") as string) || null;
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -46,6 +47,7 @@ export async function addTransaction(formData: FormData) {
     is_recurring,
     recurrence: is_recurring ? recurrence : null,
     next_occurrence,
+    account_id,
   });
 
   if (error) throw new Error(error.message);

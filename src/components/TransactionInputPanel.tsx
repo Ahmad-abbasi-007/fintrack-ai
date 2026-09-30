@@ -5,10 +5,12 @@ import AddTransactionForm from "@/components/AddTransactionForm";
 import ReceiptScanner from "@/components/ReceiptScanner";
 import { createClient } from "@/lib/supabase/client";
 import type { Category } from "@/lib/types";
+import type { Account } from "@/lib/types";
 import type { ReceiptData } from "@/app/dashboard/receipt-actions";
 
 export default function TransactionInputPanel() {
   const supabase = createClient();
+    const [accounts, setAccounts] = useState<Account[]>([]);
   const [prefill, setPrefill] = useState<ReceiptData | null>(null);
   const [tab, setTab] = useState<"manual" | "scan">("manual");
   const [categories, setCategories] = useState<Category[]>([]);
@@ -16,6 +18,14 @@ export default function TransactionInputPanel() {
 
   useEffect(() => {
     async function load() {
+            const { data: accountData } = await supabase
+        .from("accounts")
+        .select("*")
+        .eq("is_archived", false)
+        .order("created_at", { ascending: true });
+
+      setAccounts((accountData ?? []) as Account[]);
+
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -77,7 +87,9 @@ export default function TransactionInputPanel() {
         <AddTransactionForm
           key={prefill ? JSON.stringify(prefill) : "manual"}
           categories={categories}
+          accounts={accounts}
           prefill={prefill}
+          onPrefillConsumed={() => setPrefill(null)}
         />
       ) : (
         <ReceiptScanner onExtract={handleExtract} />

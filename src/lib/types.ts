@@ -12,6 +12,9 @@ export type Transaction = {
   recurrence: "weekly" | "monthly" | "yearly" | null;
   next_occurrence: string | null;
   parent_id: string | null;
+  account_id: string | null;             
+  is_transfer: boolean;                  
+  transfer_to_account_id: string | null; 
   created_at: string;
 };
 
@@ -167,3 +170,63 @@ export const BILL_CATEGORIES = [
   "Loan",
   "Other",
 ];
+
+export type AccountType = "cash" | "bank" | "card" | "wallet" | "other";
+
+export type Account = {
+  id: string;
+  user_id: string;
+  name: string;
+  type: AccountType;
+  initial_balance: number;
+  color: string;
+  icon: string;
+  is_archived: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AccountWithBalance = Account & {
+  current_balance: number;
+  income_total: number;
+  expense_total: number;
+};
+
+export const ACCOUNT_TYPES: {
+  value: AccountType;
+  label: string;
+  icon: string;
+}[] = [
+  { value: "cash", label: "Cash", icon: "💵" },
+  { value: "bank", label: "Bank", icon: "🏦" },
+  { value: "card", label: "Card", icon: "💳" },
+  { value: "wallet", label: "Wallet", icon: "👛" },
+  { value: "other", label: "Other", icon: "💰" },
+];
+
+export const ACCOUNT_ICONS = [
+  "💵",
+  "🏦",
+  "💳",
+  "👛",
+  "💰",
+  "🏧",
+  "📱",
+  "💎",
+  "🎁",
+  "🏢",
+];
+
+export const ACCOUNT_COLORS: Record<
+  string,
+  { bg: string; text: string; bar: string }
+> = {
+  emerald: { bg: "bg-emerald-500/10", text: "text-emerald-400", bar: "bg-emerald-500" },
+  blue: { bg: "bg-blue-500/10", text: "text-blue-400", bar: "bg-blue-500" },
+  violet: { bg: "bg-violet-500/10", text: "text-violet-400", bar: "bg-violet-500" },
+  pink: { bg: "bg-pink-500/10", text: "text-pink-400", bar: "bg-pink-500" },
+  amber: { bg: "bg-amber-500/10", text: "text-amber-400", bar: "bg-amber-500" },
+  red: { bg: "bg-red-500/10", text: "text-red-400", bar: "bg-red-500" },
+  teal: { bg: "bg-teal-500/10", text: "text-teal-400", bar: "bg-teal-500" },
+  cyan: { bg: "bg-cyan-500/10", text: "text-cyan-400", bar: "bg-cyan-500" },
+};

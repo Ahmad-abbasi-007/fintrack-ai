@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { Account } from "@/lib/types";
 import { addTransaction } from "@/app/dashboard/actions";
 import type { Category, TransactionType } from "@/lib/types";
 import type { ReceiptData } from "@/app/dashboard/receipt-actions";
@@ -9,15 +10,20 @@ import { suggestCategory } from "@/app/dashboard/categorize-actions";
 
 export default function AddTransactionForm({
   categories,
+  accounts,
   prefill,
+  onPrefillConsumed,
 }: {
   categories: Category[];
+  accounts: Account[];
   prefill: ReceiptData | null;
+  onPrefillConsumed: () => void;
 }) {
   const initialType = prefill?.type ?? "expense";
   const initialCategories = categories
     .filter((c) => c.type === initialType)
     .map((c) => c.name);
+      const [accountId, setAccountId] = useState(accounts[0]?.id || "");
   const [type, setType] = useState<TransactionType>(initialType);
   const [category, setCategory] = useState(
     prefill?.category ?? initialCategories[0] ?? ""
@@ -176,6 +182,22 @@ export default function AddTransactionForm({
             </span>
           </div>
         </div>
+                <div>
+          <label className="block text-sm text-gray-300 mb-1">Account</label>
+          <select
+            name="account_id"
+            value={accountId}
+            onChange={(e) => setAccountId(e.target.value)}
+            className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2.5 focus:outline-none focus:border-emerald-500"
+          >
+            {accounts.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.icon} {a.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
 
         <div>
           <label className="block text-sm text-gray-300 mb-1">
