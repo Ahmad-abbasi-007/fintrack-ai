@@ -64,6 +64,7 @@ export default function AddTransactionForm({
 
     try {
       await addTransaction(formData);
+      onPrefillConsumed();
       setIsRecurring(false);
       setRecurrence("monthly");
       setAmount("");

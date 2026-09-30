@@ -5,21 +5,25 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "FinTrack AI — Smart Personal Finance Manager",
+    default: "FinTrack AI — AI-Powered Personal Finance Manager",
     template: "%s | FinTrack AI",
   },
   description:
-    "AI-powered personal finance platform for expense tracking, budgeting, smart spending insights, and receipt scanning.",
+    "Free AI-powered personal finance app for tracking expenses, setting budgets, scanning receipts, managing goals, and getting smart spending insights. Built for Pakistan and beyond.",
   keywords: [
     "personal finance",
     "expense tracker",
     "budget app",
     "AI finance",
     "receipt scanner",
+    "savings goals",
     "PKR",
-    "Pakistan",
+    "Pakistan finance app",
+    "free finance tracker",
+    "fintech",
   ],
   authors: [{ name: "Ahmad Abbasi" }],
+  creator: "Ahmad Abbasi",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
@@ -27,10 +31,18 @@ export const metadata: Metadata = {
     title: "FinTrack AI",
   },
   openGraph: {
-    title: "FinTrack AI — Smart Personal Finance Manager",
+    title: "FinTrack AI — AI-Powered Personal Finance Manager",
     description:
-      "Track expenses, set budgets, and get AI-powered insights.",
+      "Track expenses, set budgets, scan receipts, and get AI-powered insights. Free forever.",
     type: "website",
+    siteName: "FinTrack AI",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "FinTrack AI — AI-Powered Personal Finance",
+    description:
+      "Track expenses, set budgets, scan receipts, and get AI-powered insights.",
   },
 };
 
@@ -45,7 +57,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   return (
-       <html lang="en" className="dark">
+    <html lang="en" className="dark">
       <body>
         <ThemeProvider>{children}</ThemeProvider>
       </body>

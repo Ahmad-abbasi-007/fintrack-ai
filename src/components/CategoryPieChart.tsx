@@ -68,7 +68,11 @@ export default function CategoryPieChart({
                 borderRadius: "8px",
                 color: "#fff",
               }}
-              formatter={(value) => formatCurrency(value)}
+              formatter={(value) =>
+                typeof value === "number" || typeof value === "string"
+                  ? formatCurrency(value)
+                  : ""
+              }
             />
             <Legend
               wrapperStyle={{ fontSize: "12px", color: "#9ca3af" }}
