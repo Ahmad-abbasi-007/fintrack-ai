@@ -18,7 +18,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6 pt-20 pb-24 text-center">
           <span className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-1.5 rounded-full text-sm mb-6">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            Day 19/21 — Live Demo
+              Live Demo
           </span>
 
           <h1 className="text-5xl md:text-7xl font-bold leading-tight max-w-4xl mx-auto tracking-tight">
