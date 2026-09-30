@@ -139,3 +139,31 @@ export const GOAL_COLORS: Record<string, { bg: string; text: string; bar: string
   amber: { bg: "bg-amber-500/10", text: "text-amber-400", bar: "bg-amber-500" },
   red: { bg: "bg-red-500/10", text: "text-red-400", bar: "bg-red-500" },
 };
+
+
+export type Bill = {
+  id: string;
+  user_id: string;
+  name: string;
+  amount: number;
+  category: string;
+  due_date: string;
+  is_paid: boolean;
+  paid_at: string | null;
+  recurrence: "monthly" | "yearly" | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export const BILL_CATEGORIES = [
+  "Bills",
+  "Rent",
+  "Utilities",
+  "Internet",
+  "Phone",
+  "Insurance",
+  "Subscriptions",
+  "Loan",
+  "Other",
+];

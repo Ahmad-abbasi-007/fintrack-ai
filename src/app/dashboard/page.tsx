@@ -64,6 +64,20 @@ export default async function DashboardPage() {
   const warningCount = budgetStatuses.filter(
     (s) => s.state === "warning"
   ).length;
+    // Fetch bills due soon
+  const { data: billsData } = await supabase
+    .from("bills")
+    .select("*")
+    .eq("is_paid", false)
+    .order("due_date", { ascending: true });
+
+  const upcomingBills = (billsData ?? []).filter((b) => {
+    const due = new Date(b.due_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const diff = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return diff <= 7;
+  });
 
     // Fetch goals
   const { data: goalsData } = await supabase.from("goals").select("*");
@@ -152,6 +166,33 @@ export default async function DashboardPage() {
                 className="text-sm bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg px-4 py-2"
               >
                 View Budgets →
+              </Link>
+            </div>
+          )}
+                    {/* Bills alert */}
+          {upcomingBills.length > 0 && (
+            <div className="mb-6 rounded-2xl p-4 border bg-amber-500/10 border-amber-500/30 flex items-center justify-between flex-wrap gap-3">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">📆</span>
+                <div>
+                  <p className="font-semibold text-amber-400">
+                    {upcomingBills.length} bill
+                    {upcomingBills.length > 1 ? "s" : ""} due soon
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    {upcomingBills
+                      .slice(0, 2)
+                      .map((b) => b.name)
+                      .join(", ")}
+                    {upcomingBills.length > 2 ? "..." : ""}
+                  </p>
+                </div>
+              </div>
+              <Link
+                href="/dashboard/bills"
+                className="text-sm bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg px-4 py-2"
+              >
+                View Bills →
               </Link>
             </div>
           )}
