@@ -22,11 +22,6 @@ export default function Sidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  // Close drawer on route change
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
-
   // Lock scroll when drawer open
   useEffect(() => {
     if (open) {
@@ -46,13 +41,17 @@ export default function Sidebar() {
         onClick={() => setOpen(true)}
         className="md:hidden fixed top-4 left-4 z-50 w-10 h-10 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center text-white"
         aria-label="Open menu"
+        aria-expanded={open}
+        aria-controls="main-sidebar"
       >
         <span className="text-lg">☰</span>
       </button>
 
       {/* Backdrop */}
       {open && (
-        <div
+        <button
+          type="button"
+          aria-label="Close menu"
           className="md:hidden fixed inset-0 bg-black/60 z-40"
           onClick={() => setOpen(false)}
         />
@@ -60,6 +59,8 @@ export default function Sidebar() {
 
       {/* Sidebar */}
       <aside
+        id="main-sidebar"
+        aria-label="Main navigation"
         className={`
           fixed md:static top-0 left-0 z-50
           w-64 md:w-60 min-h-screen
@@ -92,6 +93,7 @@ export default function Sidebar() {
             return (
               <Link
                 key={link.href}
+                onClick={() => setOpen(false)}
                 href={link.href}
                 className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition ${
                   active

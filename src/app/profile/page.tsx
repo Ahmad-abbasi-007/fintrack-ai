@@ -5,6 +5,7 @@ import Sidebar from "@/components/Sidebar";
 import AvatarUploader from "@/components/profile/AvatarUploader";
 import EditableField from "@/components/profile/EditableField";
 import DangerZone from "@/components/profile/DangerZone";
+import InstallAppButton from "@/components/profile/InstallAppButton";
 import {
   updateFullName,
   updateEmail,
@@ -75,6 +76,7 @@ export default async function ProfilePage() {
             <div className="border-t border-gray-800 pt-5 mt-5 grid grid-cols-1 md:grid-cols-2 gap-5">
               <EditableField
                 label="Full Name"
+                name="full_name"
                 initialValue={fullName}
                 onSave={updateFullName}
               />
@@ -142,6 +144,14 @@ export default async function ProfilePage() {
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 mb-6">
+            <h3 className="text-lg font-semibold mb-2">FinTrack AI app</h3>
+            <p className="text-sm text-gray-400 mb-4">
+              Add FinTrack AI to your device for a convenient app experience.
+            </p>
+            <InstallAppButton />
           </div>
 
           {/* Danger zone */}

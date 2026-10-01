@@ -4,12 +4,14 @@ import { useState } from "react";
 
 export default function EditableField({
   label,
+  type = "text",
+  name = type,
   initialValue,
   onSave,
-  type = "text",
   helpText,
 }: {
   label: string;
+  name?: string;
   initialValue: string;
   onSave: (formData: FormData) => Promise<void>;
   type?: "text" | "email" | "password";
@@ -27,6 +29,10 @@ export default function EditableField({
     setSuccess("");
     try {
       await onSave(formData);
+      const savedValue = formData.get(name);
+      if (type !== "password" && typeof savedValue === "string") {
+        setValue(savedValue.trim());
+      }
       setSuccess("Saved ✅");
       setEditing(false);
       setTimeout(() => setSuccess(""), 2000);
@@ -59,7 +65,7 @@ export default function EditableField({
         <form action={handleSubmit} className="space-y-2">
           <input
             type={type}
-            name={type === "password" ? "password" : type}
+            name={name}
             defaultValue={value}
             required
             autoFocus
