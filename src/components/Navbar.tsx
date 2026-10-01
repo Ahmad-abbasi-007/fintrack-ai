@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import NotificationBell from "@/components/NotificationBell";
 import ThemeToggle from "@/components/ThemeToggle";
+import InstallAppButton from "@/components/profile/InstallAppButton";
 
 export default function Navbar() {
   const router = useRouter();
@@ -41,61 +42,48 @@ export default function Navbar() {
 
   return (
     <nav className="w-full border-b border-gray-800 bg-gray-950/80 backdrop-blur-lg text-white sticky top-0 z-40">
-      <div className="mx-auto max-w-7xl grid grid-cols-3 items-center px-6 py-4">
+      <div className="mx-auto max-w-7xl grid grid-cols-3 items-center px-4 sm:px-6 py-3 sm:py-4">
      {/* LEFT — Logo (mobile only — sidebar has it on desktop) */}
         <Link
           href="/"
-          className="text-xl md:text-2xl font-bold text-emerald-400 md:hidden pl-12"
+          className="text-sm sm:text-xl md:text-2xl font-bold text-emerald-400 md:hidden pl-10 sm:pl-12 row-start-1 col-start-1 whitespace-nowrap"
         >
           FinTrack AI
         </Link>
 
         {/* Empty spacer on desktop (keeps 3-column grid aligned) */}
-        <div className="hidden md:block" />
+        <div className="hidden md:block row-start-1 col-start-1" />
 
         {/* CENTER — Middle links */}
-        <div className="flex items-center justify-center gap-8">
+        <div className="col-span-3 row-start-2 flex items-center justify-center py-2 md:col-span-1 md:col-start-2 md:row-start-1 md:py-0">
           {user ? (
-            <>
-              <Link
-                href="/dashboard"
-                className="text-gray-300 hover:text-white hidden md:block"
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="/dashboard/accounts"
-                className="text-gray-300 hover:text-white hidden md:block"
-              >
-                Accounts
-              </Link>
-            </>
+            <InstallAppButton label="Download app" showPlatforms />
           ) : (
-            <>
+            <div className="hidden md:flex items-center justify-center gap-8">
               <Link
                 href="/#features"
-                className="text-gray-300 hover:text-white hidden md:block"
+                className="text-gray-300 hover:text-white"
               >
                 Features
               </Link>
               <Link
                 href="/features"
-                className="text-gray-300 hover:text-white hidden md:block"
+                className="text-gray-300 hover:text-white"
               >
                 All Features
               </Link>
               <Link
                 href="/#how"
-                className="text-gray-300 hover:text-white hidden md:block"
+                className="text-gray-300 hover:text-white"
               >
                 How it Works
               </Link>
-            </>
+            </div>
           )}
         </div>
 
         {/* RIGHT — Auth / User */}
-        <div className="flex items-center justify-end gap-3">
+        <div className="row-start-1 col-start-3 flex items-center justify-end gap-1 sm:gap-3">
           <ThemeToggle />
 
           {user ? (
