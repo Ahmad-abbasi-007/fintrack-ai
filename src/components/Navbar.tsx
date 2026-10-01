@@ -42,10 +42,16 @@ export default function Navbar() {
   return (
     <nav className="w-full border-b border-gray-800 bg-gray-950/80 backdrop-blur-lg text-white sticky top-0 z-40">
       <div className="mx-auto max-w-7xl grid grid-cols-3 items-center px-6 py-4">
-        {/* LEFT — Logo */}
-        <Link href="/" className="text-2xl font-bold text-emerald-400">
+     {/* LEFT — Logo (mobile only — sidebar has it on desktop) */}
+        <Link
+          href="/"
+          className="text-xl md:text-2xl font-bold text-emerald-400 md:hidden pl-12"
+        >
           FinTrack AI
         </Link>
+
+        {/* Empty spacer on desktop (keeps 3-column grid aligned) */}
+        <div className="hidden md:block" />
 
         {/* CENTER — Middle links */}
         <div className="flex items-center justify-center gap-8">
@@ -147,13 +153,13 @@ export default function Navbar() {
             <>
               <Link
                 href="/login"
-                className="text-gray-300 hover:text-white text-sm"
+                className="text-gray-300 hover:text-white text-xs md:text-sm"
               >
                 Login
               </Link>
               <Link
                 href="/signup"
-                className="bg-emerald-500 hover:bg-emerald-600 text-black font-semibold px-4 py-2 rounded-lg text-sm"
+                className="bg-emerald-500 hover:bg-emerald-600 text-black font-semibold px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm whitespace-nowrap"
               >
                 Sign Up
               </Link>
